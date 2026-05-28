@@ -42,7 +42,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changePage(-1);
 });
 
-// Touch swipe support with diagonal drift prevention
+// Touch swipe support with strict horizontal detection
 let touchStartX = 0;
 let touchStartY = 0;
 document.addEventListener('touchstart', (e) => {
@@ -54,10 +54,11 @@ document.addEventListener('touchend', (e) => {
   const diffX = touchStartX - e.changedTouches[0].clientX;
   const diffY = touchStartY - e.changedTouches[0].clientY;
   
-  // Only trigger page transition if:
-  // 1. Horizontal movement is greater than vertical movement (prevents accidental swipe when scrolling vertically)
-  // 2. Horizontal movement is significant (threshold of 70px)
-  if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 70) {
+  // VERY STRICT SWIPE DETECTION:
+  // 1. Horizontal swipe must be large enough (> 80px)
+  // 2. Vertical drift must be very small (< 40px)
+  // This completely eliminates accidental swipes during vertical scrolling.
+  if (Math.abs(diffX) > 80 && Math.abs(diffY) < 40) {
     changePage(diffX > 0 ? 1 : -1);
   }
 }, { passive: true });
