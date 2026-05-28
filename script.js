@@ -42,12 +42,24 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changePage(-1);
 });
 
-// Touch swipe support
+// Touch swipe support with diagonal drift prevention
 let touchStartX = 0;
-document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+let touchStartY = 0;
+document.addEventListener('touchstart', (e) => {
+  touchStartX = e.changedTouches[0].clientX;
+  touchStartY = e.changedTouches[0].clientY;
+}, { passive: true });
+
 document.addEventListener('touchend', (e) => {
-  const diff = touchStartX - e.changedTouches[0].screenX;
-  if (Math.abs(diff) > 50) changePage(diff > 0 ? 1 : -1);
-});
+  const diffX = touchStartX - e.changedTouches[0].clientX;
+  const diffY = touchStartY - e.changedTouches[0].clientY;
+  
+  // Only trigger page transition if:
+  // 1. Horizontal movement is greater than vertical movement (prevents accidental swipe when scrolling vertically)
+  // 2. Horizontal movement is significant (threshold of 70px)
+  if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 70) {
+    changePage(diffX > 0 ? 1 : -1);
+  }
+}, { passive: true });
 
 document.addEventListener('DOMContentLoaded', init);
